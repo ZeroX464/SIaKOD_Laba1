@@ -18,18 +18,31 @@ int hash_func(int x) {
 int main() {
 	setlocale(LC_ALL, "Russian");
 	int arr[t];
+	int arrForTest[t];
 	for (int i = 0; i < t; i++) {
 		arr[i] = -1; // Начальное значение
+		arrForTest[i] = -1;
 	}
 
 	srand(time(0));
 	int start = pow(10, n-1);
-	int end = pow(10, n) - 1;
+	int end1 = pow(10, n) - 1;
 	int sum_count = 0;
+	int x = 0;
 	cout << "Сгенерированные ключи:\n";
 	cout << '[';
 	for (int i = 0; i < m; i++) {
-		int x = rand() % (end - start + 1) + start;
+		while (true) { // Проверка на дубликаты
+			x = rand() % (end1 - start + 1) + start;
+			if (find(begin(arrForTest), end(arrForTest), x) == end(arrForTest)) { break; }
+		}
+		for (int p = 0; p < t; p++) {
+			if (arrForTest[p] == -1) {
+				arrForTest[p] = x;
+				break;
+			}
+		}
+		
 		if (i == m - 1) { printf("%d]\n", x); }
 		else { printf("%d, ", x); }
 		int hash = hash_func(x);
@@ -39,22 +52,23 @@ int main() {
 			arr[hash] = x;
 		}
 		else {
-			int a = hash;
+			int a = 0;
 			int b = 1;
 			while (count < t) { // Квадратичное опробывание
 				count += 1;
-				a = static_cast<int> (a + pow(b, 2)) % t;
+				a = static_cast<int> (hash + pow(b, 2)) % t;
 				if (arr[a] == -1) {
 					arr[a] = x;
 					break;
 				}
 				b += 1;
 			}
-			if (count == t) { // Линейное опробывание
+			if (count >= t) { // Линейное опробывание
 				a = hash;
+				b = 1;
 				while (true) {
 					count += 1;
-					a = (a + 1) % t;
+					a = (hash + b) % t;
 					if (arr[a] == -1) {
 						arr[a] = x;
 						break;
@@ -69,8 +83,8 @@ int main() {
 	cout << "Хеш-таблица:\n";
 	cout << '[';
 	for (int i = 0; i < t; i++) {
-		if (i == t - 1) { printf("%d]\n", arr[i]); }
-		else { printf("%d, ", arr[i]); }
+		if (i == t - 1) { printf("%d : %d]\n", i, arr[i]); }
+		else { printf("%d : %d, ", i, arr[i]); }
 	}
 
 	int k = 0;
